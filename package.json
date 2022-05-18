@@ -24,24 +24,25 @@
   "author": "Grafana Labs",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@grafana/data": "7.5.5",
-    "@grafana/toolkit": "7.5.5",
-    "@grafana/runtime": "7.5.5",
-    "@grafana/ui": "7.5.5",
+    "@grafana/data": "latest",
+    "@grafana/runtime": "latest",
+    "@grafana/toolkit": "latest",
+    "@grafana/tsconfig": "^1.0.0-rc1",
+    "@grafana/ui": "latest",
     "@types/lodash": "4.14.168",
-    "grpc": "^1.24.3",
+    "@types/request-promise-native": "1.0.14",
     "google-protobuf": "^3.12.2",
+    "grpc": "^1.24.3",
     "grpc-tools": "^1.9.0",
     "protoc-gen-grpc": "1.4.4",
-    "@grafana/tsconfig": "^1.0.0-rc1",
     "request-promise-native": "1.0.8",
-    "@types/request-promise-native": "1.0.14",
     "tslib": "2.1.0"
   },
   "dependencies": {
-    "typescript": "4.2.2",
+    "apache-arrow": "0.16.0",
+    "nexe": "3.3.3",
     "pkg": "4.5.0",
-    "nexe": "3.3.3"
+    "typescript": "4.2.2"
   },
   "engines": {
     "node": ">=12 <=16"

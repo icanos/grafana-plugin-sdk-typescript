@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { DataFrame, grafanaDataFrameToArrowTable, FieldType, ArrayVector, DateTime } from '@grafana/data';
+import { DataFrame, FieldType, ArrayVector, DateTime } from '@grafana/data';
 import * as proto from './proto/backend_grpc_pb';
 import {
   CheckHealthRequest,
@@ -19,8 +19,7 @@ import {
 import * as grpc from 'grpc';
 import { Logger } from './logging';
 import { API } from './api';
-import { RecordBatchFileWriter } from 'apache-arrow';
-
+import { RecordBatchFileWriter, Table } from 'apache-arrow';
 
 export {
   CheckHealthRequest,
@@ -35,6 +34,7 @@ export {
 } from './proto/backend_pb';
 
 import { BackendSrvImpl } from './services/BackendSrvImpl';
+import { grafanaDataFrameToArrowTable } from './arrowFrameExtensions';
 export { BackendSrvImpl }
 
 export class ApiConnectionManager {
@@ -51,7 +51,6 @@ export class ApiConnectionManager {
     return this.apiMap[settings.url];
   }
 }
-
 
 export abstract class DiagnosticsService implements proto.IDiagnosticsServer {
   abstract CheckHealth(request: CheckHealthRequest): Promise<CheckHealthResponse>;
