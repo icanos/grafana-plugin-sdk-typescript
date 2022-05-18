@@ -19,7 +19,7 @@ import {
 import * as grpc from 'grpc';
 import { Logger } from './logging';
 import { API } from './api';
-import { RecordBatchFileWriter, Table } from 'apache-arrow';
+import { RecordBatchFileWriter } from 'apache-arrow';
 
 export {
   CheckHealthRequest,

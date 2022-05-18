@@ -23,6 +23,7 @@ Object.defineProperty(exports, "CallResourceResponse", { enumerable: true, get: 
 Object.defineProperty(exports, "DataResponse", { enumerable: true, get: function () { return backend_pb_2.DataResponse; } });
 const BackendSrvImpl_1 = require("./services/BackendSrvImpl");
 Object.defineProperty(exports, "BackendSrvImpl", { enumerable: true, get: function () { return BackendSrvImpl_1.BackendSrvImpl; } });
+const arrowFrameExtensions_1 = require("./arrowFrameExtensions");
 class ApiConnectionManager {
     constructor() {
         this.apiMap = {};
@@ -92,7 +93,7 @@ class DataService {
                                 return field;
                             });
                             const newDataFrame = Object.assign(Object.assign({}, dataFrame), { fields: newFields });
-                            const table = data_1.grafanaDataFrameToArrowTable(newDataFrame);
+                            const table = arrowFrameExtensions_1.grafanaDataFrameToArrowTable(newDataFrame);
                             writer.write(table);
                         });
                         writer.finish();
