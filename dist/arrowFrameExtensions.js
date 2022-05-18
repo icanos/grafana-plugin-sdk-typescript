@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.grafanaDataFrameToArrowTable = exports.arrowTableToDataFrame = exports.base64StringToArrowTable = void 0;
-const FunctionalVector_1 = require("@grafana/data/vector/FunctionalVector");
 const apache_arrow_1 = require("apache-arrow");
 const data_1 = require("@grafana/data");
 function base64StringToArrowTable(text) {
@@ -159,7 +158,7 @@ function updateArrowTableNames(table, frame) {
     }
     return apache_arrow_1.Table.new(cols);
 }
-class NumberColumn extends FunctionalVector_1.FunctionalVector {
+class NumberColumn extends FunctionalVector {
     constructor(col) {
         super();
         this.col = col;

@@ -1,5 +1,3 @@
-import { FunctionalVector } from '@grafana/data/vector/FunctionalVector';
-
 import {
   Table,
   ArrowType,
@@ -198,4 +196,16 @@ class NumberColumn extends FunctionalVector<number> {
     // See https://javascript.info/bigint
     return Number(v);
   }
+}
+
+declare abstract class FunctionalVector<T = any> implements Vector<T>, Iterable<T> {
+  abstract get length(): number;
+  abstract get(index: number): T;
+  iterator(): Generator<T, void, unknown>;
+  [Symbol.iterator](): Generator<T, void, unknown>;
+  forEach(iterator: (row: T) => void): void;
+  map<V>(transform: (item: T, index: number) => V): V[];
+  filter(predicate: (item: T) => boolean): T[];
+  toArray(): T[];
+  toJSON(): any;
 }
