@@ -1,4 +1,3 @@
-import { DataFrame, FieldType, Field, Vector } from '@grafana/data/types';
 import { FunctionalVector } from '@grafana/data/vector/FunctionalVector';
 
 import {
@@ -13,7 +12,7 @@ import {
   Bool,
   Column,
 } from 'apache-arrow';
-import { getFieldDisplayName } from '@grafana/data/field';
+import { DataFrame, Field, FieldType, Vector, getFieldDisplayName } from '@grafana/data';
 
 export interface ArrowDataFrame extends DataFrame {
   table: Table;
