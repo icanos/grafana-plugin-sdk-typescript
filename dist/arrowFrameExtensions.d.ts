@@ -1,5 +1,5 @@
-import { DataFrame } from '@grafana/data/types';
 import { Table } from 'apache-arrow';
+import { DataFrame } from '@grafana/data';
 export interface ArrowDataFrame extends DataFrame {
     table: Table;
 }

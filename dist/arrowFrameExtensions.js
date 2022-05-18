@@ -1,10 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.grafanaDataFrameToArrowTable = exports.arrowTableToDataFrame = exports.base64StringToArrowTable = void 0;
-const types_1 = require("@grafana/data/types");
 const FunctionalVector_1 = require("@grafana/data/vector/FunctionalVector");
 const apache_arrow_1 = require("apache-arrow");
-const field_1 = require("@grafana/data/field");
+const data_1 = require("@grafana/data");
 function base64StringToArrowTable(text) {
     const b64 = atob(text);
     const arr = Uint8Array.from(b64, c => {
@@ -33,29 +32,29 @@ function arrowTableToDataFrame(table) {
         const col = table.getColumnAt(i);
         if (col) {
             const schema = table.schema.fields[i];
-            let type = types_1.FieldType.other;
+            let type = data_1.FieldType.other;
             let values = col;
             switch (schema.typeId) {
                 case apache_arrow_1.ArrowType.Decimal:
                 case apache_arrow_1.ArrowType.FloatingPoint: {
-                    type = types_1.FieldType.number;
+                    type = data_1.FieldType.number;
                     break;
                 }
                 case apache_arrow_1.ArrowType.Int: {
-                    type = types_1.FieldType.number;
+                    type = data_1.FieldType.number;
                     values = new NumberColumn(col); // Cast to number
                     break;
                 }
                 case apache_arrow_1.ArrowType.Bool: {
-                    type = types_1.FieldType.boolean;
+                    type = data_1.FieldType.boolean;
                     break;
                 }
                 case apache_arrow_1.ArrowType.Timestamp: {
-                    type = types_1.FieldType.time;
+                    type = data_1.FieldType.time;
                     break;
                 }
                 case apache_arrow_1.ArrowType.Utf8: {
-                    type = types_1.FieldType.string;
+                    type = data_1.FieldType.string;
                     break;
                 }
                 default:
@@ -84,16 +83,16 @@ exports.arrowTableToDataFrame = arrowTableToDataFrame;
 function toArrowVector(field) {
     // OR: Float64Vector.from([1, 2, 3]));
     let type;
-    if (field.type === types_1.FieldType.number) {
+    if (field.type === data_1.FieldType.number) {
         type = new apache_arrow_1.Float64();
     }
-    else if (field.type === types_1.FieldType.time) {
+    else if (field.type === data_1.FieldType.time) {
         type = new apache_arrow_1.TimestampMillisecond();
     }
-    else if (field.type === types_1.FieldType.boolean) {
+    else if (field.type === data_1.FieldType.boolean) {
         type = new apache_arrow_1.Bool();
     }
-    else if (field.type === types_1.FieldType.string) {
+    else if (field.type === data_1.FieldType.string) {
         type = new apache_arrow_1.Utf8();
     }
     else {
@@ -124,7 +123,7 @@ function grafanaDataFrameToArrowTable(data, keepOriginalNames) {
         let name = field.name;
         // when used directly as an arrow table the name should match the arrow schema
         if (!keepOriginalNames) {
-            name = field_1.getFieldDisplayName(field, data);
+            name = data_1.getFieldDisplayName(field, data);
         }
         const column = apache_arrow_1.Column.new(name, toArrowVector(field));
         if (field.labels) {
@@ -155,7 +154,7 @@ function updateArrowTableNames(table, frame) {
         if (!col) {
             return undefined;
         }
-        const name = field_1.getFieldDisplayName(frame.fields[i], frame);
+        const name = data_1.getFieldDisplayName(frame.fields[i], frame);
         cols.push(apache_arrow_1.Column.new(col.field.clone({ name: name }), ...col.chunks));
     }
     return apache_arrow_1.Table.new(cols);
