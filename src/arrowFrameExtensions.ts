@@ -10,7 +10,7 @@ import {
   Bool,
   Column,
 } from 'apache-arrow';
-import { DataFrame, Field, FieldType, Vector, getFieldDisplayName } from '@grafana/data';
+import { DataFrame, Field, FieldType, Vector, getFieldDisplayName, vectorator } from '@grafana/data';
 
 export interface ArrowDataFrame extends DataFrame {
   table: Table;
@@ -37,6 +37,45 @@ function parseOptionalMeta(str?: string): any {
     }
   }
   return undefined;
+}
+
+function vectorToArray(v) {
+  const arr = Array(v.length);
+  for (let i = 0; i < v.length; i++) {
+      arr[i] = v.get(i);
+  }
+  return arr;
+}
+
+abstract class FunctionalVector<T> implements Vector<T>, Iterable<T> {
+  abstract length: number;
+  abstract get(index: number): T;
+
+  // Implement "iterator protocol"
+  *iterator() {
+      for (let i = 0; i < this.length; i++) {
+          yield this.get(i);
+      }
+  }
+  // Implement "iterable protocol"
+  [Symbol.iterator]() {
+      return this.iterator();
+  }
+  forEach(iterator) {
+      return vectorator(this).forEach(iterator);
+  }
+  map(transform) {
+      return vectorator(this).map(transform);
+  }
+  filter(predicate) {
+      return vectorator(this).filter(predicate);
+  }
+  toArray() {
+      return vectorToArray(this);
+  }
+  toJSON() {
+      return this.toArray();
+  }
 }
 
 export function arrowTableToDataFrame(table: Table): ArrowDataFrame {
@@ -196,16 +235,4 @@ class NumberColumn extends FunctionalVector<number> {
     // See https://javascript.info/bigint
     return Number(v);
   }
-}
-
-declare abstract class FunctionalVector<T = any> implements Vector<T>, Iterable<T> {
-  abstract get length(): number;
-  abstract get(index: number): T;
-  iterator(): Generator<T, void, unknown>;
-  [Symbol.iterator](): Generator<T, void, unknown>;
-  forEach(iterator: (row: T) => void): void;
-  map<V>(transform: (item: T, index: number) => V): V[];
-  filter(predicate: (item: T) => boolean): T[];
-  toArray(): T[];
-  toJSON(): any;
 }

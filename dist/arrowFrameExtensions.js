@@ -25,6 +25,40 @@ function parseOptionalMeta(str) {
     }
     return undefined;
 }
+function vectorToArray(v) {
+    const arr = Array(v.length);
+    for (let i = 0; i < v.length; i++) {
+        arr[i] = v.get(i);
+    }
+    return arr;
+}
+class FunctionalVector {
+    // Implement "iterator protocol"
+    *iterator() {
+        for (let i = 0; i < this.length; i++) {
+            yield this.get(i);
+        }
+    }
+    // Implement "iterable protocol"
+    [Symbol.iterator]() {
+        return this.iterator();
+    }
+    forEach(iterator) {
+        return data_1.vectorator(this).forEach(iterator);
+    }
+    map(transform) {
+        return data_1.vectorator(this).map(transform);
+    }
+    filter(predicate) {
+        return data_1.vectorator(this).filter(predicate);
+    }
+    toArray() {
+        return vectorToArray(this);
+    }
+    toJSON() {
+        return this.toArray();
+    }
+}
 function arrowTableToDataFrame(table) {
     const fields = [];
     for (let i = 0; i < table.numCols; i++) {
