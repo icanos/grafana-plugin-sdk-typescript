@@ -3,14 +3,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = exports.logger = exports.BackendServer = exports.ResourceService = exports.DataService = exports.DiagnosticsService = exports.ApiConnectionManager = exports.BackendSrvImpl = exports.DataResponse = exports.CallResourceResponse = exports.CallResourceRequest = exports.CollectMetricsResponse = exports.CollectMetricsRequest = exports.QueryDataResponse = exports.QueryDataRequest = exports.CheckHealthResponse = exports.CheckHealthRequest = void 0;
 const tslib_1 = require("tslib");
-const data_1 = require("@grafana/data");
 const proto = tslib_1.__importStar(require("./proto/backend_grpc_pb"));
 const backend_pb_1 = require("./proto/backend_pb");
 const grpc = tslib_1.__importStar(require("grpc"));
 const logging_1 = require("./logging");
 Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logging_1.Logger; } });
 const api_1 = require("./api");
-const apache_arrow_1 = require("apache-arrow");
 var backend_pb_2 = require("./proto/backend_pb");
 Object.defineProperty(exports, "CheckHealthRequest", { enumerable: true, get: function () { return backend_pb_2.CheckHealthRequest; } });
 Object.defineProperty(exports, "CheckHealthResponse", { enumerable: true, get: function () { return backend_pb_2.CheckHealthResponse; } });
@@ -23,7 +21,8 @@ Object.defineProperty(exports, "CallResourceResponse", { enumerable: true, get: 
 Object.defineProperty(exports, "DataResponse", { enumerable: true, get: function () { return backend_pb_2.DataResponse; } });
 const BackendSrvImpl_1 = require("./services/BackendSrvImpl");
 Object.defineProperty(exports, "BackendSrvImpl", { enumerable: true, get: function () { return BackendSrvImpl_1.BackendSrvImpl; } });
-const arrowFrameExtensions_1 = require("./arrowFrameExtensions");
+const arrow_1 = require("./arrow");
+const apache_arrow_1 = require("apache-arrow");
 class ApiConnectionManager {
     constructor() {
         this.apiMap = {};
@@ -84,22 +83,20 @@ class DataService {
                         const contextJson = Buffer.from((_b = context.datasourceinstancesettings) === null || _b === void 0 ? void 0 : _b.jsondata, 'base64').toString('ascii');
                         const contextAsO = JSON.parse(contextJson);
                         const dataFrames = yield this.QueryData(Object.assign(Object.assign({}, query), { query: queryAsQ }), Object.assign(Object.assign({}, context), { datasourceinstancesettings: Object.assign(Object.assign({}, context.datasourceinstancesettings), { json: contextAsO }) }));
-                        const writer = new apache_arrow_1.RecordBatchFileWriter();
-                        dataFrames.forEach((dataFrame) => {
-                            const newFields = dataFrame.fields.map(field => {
-                                if (field.type == data_1.FieldType.time) {
-                                    return Object.assign(Object.assign({}, field), { values: new data_1.ArrayVector(field.values.toArray().map((value) => value.valueOf() * 1000)) });
-                                }
-                                return field;
-                            });
-                            const newDataFrame = Object.assign(Object.assign({}, dataFrame), { fields: newFields });
-                            const table = arrowFrameExtensions_1.grafanaDataFrameToArrowTable(newDataFrame);
+                        logger.info("frames received", dataFrames);
+                        const frames = [];
+                        dataFrames.forEach((frame) => {
+                            const writer = new apache_arrow_1.RecordBatchFileWriter();
+                            const table = arrow_1.marshalArrow(frame);
                             writer.write(table);
+                            writer.finish();
+                            const record = writer.toUint8Array(true);
+                            writer.close();
+                            frames.push(record);
+                            logger.info("en frame is ready!");
                         });
-                        writer.finish();
-                        const frames = yield writer.toUint8Array();
-                        dataResponse.addFrames(frames);
-                        writer.close();
+                        logger.info("frames to add", frames);
+                        dataResponse.setFramesList(frames);
                         response.getResponsesMap().set(query.refid, dataResponse);
                     }
                 }

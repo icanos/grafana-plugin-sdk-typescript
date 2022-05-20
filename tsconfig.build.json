@@ -9,7 +9,9 @@
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
     "rootDirs": ["src"],
-    "typeRoots": ["node_modules/@types", "types"]
+    "typeRoots": ["node_modules/@types", "types"],
+    "suppressImplicitAnyIndexErrors": true,
+    "suppressExcessPropertyErrors": true
   },
   "exclude": ["dist", "node_modules", "skel"],
   "extends": "@grafana/tsconfig",
